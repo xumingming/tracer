@@ -32,22 +32,26 @@ lein repl
 * Invoke your function to see what happens( **you get a call tree & with the parameter value!** ):
 
 ```clojure
-user=> (read-string "\u0061")
-|--[TRACER] blind.reader$read-string (a)
-  |--[TRACER] blind.reader$string-push-back-reader (a)
-    |--[TRACER] blind.reader$string-push-back-reader (a 1)
-      |--[TRACER] blind.reader$string-reader (a)
-  |--[TRACER] blind.reader$read (#<PushbackReader blind.reader.PushbackReader@648730b8> true nil false)
-    |--[TRACER] blind.reader$char (a)
-    |--[TRACER] blind.reader$whitespace? (a)
-    |--[TRACER] blind.reader$number-literal? (#<PushbackReader blind.reader.PushbackReader@648730b8> a)
-      |--[TRACER] blind.reader$numeric? (a)
-    |--[TRACER] blind.reader$comment-prefix? (a)
-    |--[TRACER] blind.reader$macros (a)
-    |--[TRACER] blind.reader$read-symbol (#<PushbackReader blind.reader.PushbackReader@648730b8> a)
-      |--[TRACER] blind.reader$read-token (#<PushbackReader blind.reader.PushbackReader@648730b8> a)
-        |--[TRACER] blind.reader$char (nil)
-      |--[TRACER] blind.reader$parse-symbol (a)
+user=> (read-string "\"hello\"")
+|--[TRACER] blind.reader$read-string ("hello")
+  |--[TRACER] blind.reader$string-push-back-reader ("hello")
+    |--[TRACER] blind.reader$string-push-back-reader ("hello" 1)
+      |--[TRACER] blind.reader$string-reader ("hello")
+  |--[TRACER] blind.reader$read (#<PushbackReader blind.reader.PushbackReader@4a0ce796> true nil false)
+    |--[TRACER] blind.reader$char (")
+    |--[TRACER] blind.reader$whitespace? (")
+    |--[TRACER] blind.reader$number-literal? (#<PushbackReader blind.reader.PushbackReader@4a0ce796> ")
+      |--[TRACER] blind.reader$numeric? (")
+    |--[TRACER] blind.reader$comment-prefix? (")
+    |--[TRACER] blind.reader$macros (")
+    |--[TRACER] blind.reader$read-string-STAR- (#<PushbackReader blind.reader.PushbackReader@4a0ce796> ")
+      |--[TRACER] blind.reader$char (h)
+      |--[TRACER] blind.reader$char (e)
+      |--[TRACER] blind.reader$char (l)
+      |--[TRACER] blind.reader$char (l)
+      |--[TRACER] blind.reader$char (o)
+      |--[TRACER] blind.reader$char (")
+"hello"
 ```
 
 ## License
