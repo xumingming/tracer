@@ -29,25 +29,25 @@ lein repl
 (wrap-ns 'blind.reader)
 ```
 
-* Invoke your function to see what happens:
+* Invoke your function to see what happens(**you get a call tree**):
 
 ```clojure
 user=> (read-string "\u0061")
-[TRACER] blind.reader$read-string (a)
-[TRACER] blind.reader$string-push-back-reader (a)
-[TRACER] blind.reader$string-push-back-reader (a 1)
-[TRACER] blind.reader$string-reader (a)
-[TRACER] blind.reader$read (#<PushbackReader blind.reader.PushbackReader@625db9eb> true nil false)
-[TRACER] blind.reader$char (a)
-[TRACER] blind.reader$whitespace? (a)
-[TRACER] blind.reader$number-literal? (#<PushbackReader blind.reader.PushbackReader@625db9eb> a)
-[TRACER] blind.reader$numeric? (a)
-[TRACER] blind.reader$comment-prefix? (a)
-[TRACER] blind.reader$macros (a)
-[TRACER] blind.reader$read-symbol (#<PushbackReader blind.reader.PushbackReader@625db9eb> a)
-[TRACER] blind.reader$read-token (#<PushbackReader blind.reader.PushbackReader@625db9eb> a)
-[TRACER] blind.reader$char (nil)
-[TRACER] blind.reader$parse-symbol (a)
+|--[TRACER] blind.reader$read-string (a)
+  |--[TRACER] blind.reader$string-push-back-reader (a)
+    |--[TRACER] blind.reader$string-push-back-reader (a 1)
+      |--[TRACER] blind.reader$string-reader (a)
+  |--[TRACER] blind.reader$read (#<PushbackReader blind.reader.PushbackReader@648730b8> true nil false)
+    |--[TRACER] blind.reader$char (a)
+    |--[TRACER] blind.reader$whitespace? (a)
+    |--[TRACER] blind.reader$number-literal? (#<PushbackReader blind.reader.PushbackReader@648730b8> a)
+      |--[TRACER] blind.reader$numeric? (a)
+    |--[TRACER] blind.reader$comment-prefix? (a)
+    |--[TRACER] blind.reader$macros (a)
+    |--[TRACER] blind.reader$read-symbol (#<PushbackReader blind.reader.PushbackReader@648730b8> a)
+      |--[TRACER] blind.reader$read-token (#<PushbackReader blind.reader.PushbackReader@648730b8> a)
+        |--[TRACER] blind.reader$char (nil)
+      |--[TRACER] blind.reader$parse-symbol (a)
 ```
 
 ## License
