@@ -26,7 +26,7 @@ lein repl
 * Tell `tracer` which namespace you want to trace:
 
 ```clojure
-(wrap-ns 'blind.reader)
+(trace 'blind.reader)
 ```
 
 * Invoke your function to see what happens( **you get a call tree & with the parameter value!** ):
