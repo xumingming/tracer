@@ -1,11 +1,22 @@
-(ns tracer.core)
+(ns tracer.core
+  (require [clojure.string :refer [split]]))
+
+(defn parse-ns-name [f]
+  (let [full-class-name (-> f type .getName)
+        [ns-name fn-name] (vec (.split full-class-name "\\$"))
+        fn-name (.replaceAll fn-name "_QMARK_" "?")
+        fn-name (.replaceAll fn-name "_BANG_" "!")
+        fn-name (.replaceAll fn-name "_" "-")]
+    [ns-name fn-name]))
 
 (defmacro wrap-fn [f]
   `(alter-var-root ~f (fn [original#]
                         (fn [& args#]
-                          (println "[TRACER-ak47]" original# args#)
-                          (let [ret# (apply original# args#)]
-                            ret#)))))
+                          (let [[ns-name# fn-name#] (parse-ns-name  original#)
+                                display-fn-name# (str ns-name# "$" fn-name#)]
+                            (println "[TRACER]" display-fn-name#  args#)
+                            (let [ret# (apply original# args#)]
+                              ret#))))))
 
 (defn wrap-ns [ns-name-sym]
   (let [vars (ns-interns ns-name-sym)]
