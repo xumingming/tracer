@@ -13,6 +13,7 @@
         [ns-name fn-name] (vec (.split full-class-name "\\$"))
         fn-name (.replaceAll fn-name "_QMARK_" "?")
         fn-name (.replaceAll fn-name "_BANG_" "!")
+        fn-name (.replaceAll fn-name "_STAR_" "*")
         fn-name (.replaceAll fn-name "_" "-")]
     [ns-name fn-name]))
 
