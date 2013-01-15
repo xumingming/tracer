@@ -29,7 +29,7 @@ lein repl
 (wrap-ns 'blind.reader)
 ```
 
-* Invoke your function to see what happens(**you get a call tree**):
+* Invoke your function to see what happens( **you get a call tree** ):
 
 ```clojure
 user=> (read-string "\u0061")
