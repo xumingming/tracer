@@ -1,5 +1,4 @@
-(ns tracer.core
-  (require [robert.hooke :refer [add-hook]]))
+(ns tracer.core)
 
 (defmacro wrap-fn [f]
   `(alter-var-root ~f (fn [original#]
@@ -14,5 +13,5 @@
              :let [var-name (name var-name)
                    var-ns (-> var-obj meta :ns .getName name)]]
       (if-not (= "log" var-name)
-        (wrap var-obj)))))
+        (wrap-fn var-obj)))))
 
