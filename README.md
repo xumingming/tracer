@@ -34,26 +34,42 @@ lein deps && lein repl
 * Invoke your function to see what happens( **you get a call tree & with the parameter value!** ):
 
 ```clojure
-user=> (read-string "\"hello\"")
-|-- (blind.reader/read-string "\"hello\"")
-  |-- (blind.reader/string-push-back-reader "\"hello\"")
-    |-- (blind.reader/string-push-back-reader "\"hello\"" 1)
-      |-- (blind.reader/string-reader "\"hello\"")
-  |-- (blind.reader/read #<PushbackReader blind.reader.PushbackReader@7eec835f> true nil false)
-    |-- (blind.reader/char \")
-    |-- (blind.reader/whitespace? \")
-    |-- (blind.reader/number-literal? #<PushbackReader blind.reader.PushbackReader@7eec835f> \")
-      |-- (blind.reader/numeric? \")
-    |-- (blind.reader/comment-prefix? \")
-    |-- (blind.reader/macros \")
-    |-- (blind.reader/read-string* #<PushbackReader blind.reader.PushbackReader@7eec835f> \")
-      |-- (blind.reader/char \h)
-      |-- (blind.reader/char \e)
-      |-- (blind.reader/char \l)
-      |-- (blind.reader/char \l)
-      |-- (blind.reader/char \o)
-      |-- (blind.reader/char \")
-"hello"
+user> (read-string "hello")
+|-+ (blind.reader/read-string "hello")
+  |-+ (blind.reader/string-push-back-reader "hello")
+    |-+ (blind.reader/string-push-back-reader "hello" 1)
+      |-+ (blind.reader/string-reader "hello")
+  |-+ (blind.reader/read #<PushbackReader blind.reader.PushbackReader@6f54c08a> true nil false)
+    |-+ (blind.reader/char \h)
+    |-+ (blind.reader/whitespace? \h)
+    |-+ (blind.reader/number-literal? #<PushbackReader blind.reader.PushbackReader@6f54c08a> \h)
+      |-+ (blind.reader/numeric? \h)
+    |-+ (blind.reader/comment-prefix? \h)
+    |-+ (blind.reader/macros \h)
+    |-+ (blind.reader/read-token #<PushbackReader blind.reader.PushbackReader@6f54c08a> \h)
+      |-+ (blind.reader/char \e)
+      |-+ (blind.reader/whitespace? \e)
+      |-+ (blind.reader/macro-terminating? \e)
+        |-+ (blind.reader/macros \e)
+      |-+ (blind.reader/char \e)
+      |-+ (blind.reader/char \l)
+      |-+ (blind.reader/whitespace? \l)
+      |-+ (blind.reader/macro-terminating? \l)
+        |-+ (blind.reader/macros \l)
+      |-+ (blind.reader/char \l)
+      |-+ (blind.reader/char \l)
+      |-+ (blind.reader/whitespace? \l)
+      |-+ (blind.reader/macro-terminating? \l)
+        |-+ (blind.reader/macros \l)
+      |-+ (blind.reader/char \l)
+      |-+ (blind.reader/char \o)
+      |-+ (blind.reader/whitespace? \o)
+      |-+ (blind.reader/macro-terminating? \o)
+        |-+ (blind.reader/macros \o)
+      |-+ (blind.reader/char \o)
+      |-+ (blind.reader/char nil)
+    |-+ (blind.reader/parse-symbol "hello")
+hello
 ```
 
 * Finally, you can undo all the tracing by calling `untrace` with the
@@ -63,8 +79,8 @@ same namespace symbol.
 ```clojure
 user=>(trace 'user :show-tid)
 user=>(foo 5)
-18:  |-- (user/foo 5)
-18:     |-- (user/bar 5)
+18:  |-+ (user/foo 5)
+18:    |-+ (user/bar 5)
 ```
 
 ## Contributors
