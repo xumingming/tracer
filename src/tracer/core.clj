@@ -6,7 +6,7 @@
 (defn- print-level [level]
   (doseq [i (range level)]
     (print "  "))
-  (print "|-- "))
+  (print "|-+ "))
 
 (defn- parse-ns-name [f]
   (let [full-class-name (-> f type .getName)
