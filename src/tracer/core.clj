@@ -1,10 +1,10 @@
 (ns tracer.core
   (require [clojure.string :refer [split]]))
 
-(def ^:private level (atom 0))
+(def ^:private level-in-threads (atom {}))
 
-(defn- print-level []
-  (doseq [i (range @level)]
+(defn- print-level [level]
+  (doseq [i (range level)]
     (print "  "))
   (print "|--"))
 
@@ -24,14 +24,17 @@
   `(alter-var-root ~f (fn [original#]
                         (fn [& args#]
                           (let [[ns-name# fn-name#] (parse-ns-name  original#)
-                                display-fn-name# (str ns-name# "$" fn-name#)]
-                            (print-level)
+                                display-fn-name# (str ns-name# "$" fn-name#)
+                                tid# (.getId (Thread/currentThread))
+                                level# (or (@level-in-threads tid#)
+                                           ((swap! level-in-threads assoc tid# 0) tid#))]
+                            (print-level level#)
                             ;; incr the level
-                            (swap! level inc)
+                            (swap! level-in-threads update-in [tid#] inc)
                             (println display-fn-name#  args#)
                             (let [ret# (apply original# args#)]
                               ;; decr the level
-                              (swap! level dec)
+                              (swap! level-in-threads update-in [tid#] dec)
                               ret#))))))
 
 (defn trace [ns-name-sym]
@@ -40,4 +43,3 @@
       (when (callable? var-obj)
         (println "Add" var-name "to trace list.")
         (wrap-fn var-obj)))))
-
