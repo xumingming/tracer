@@ -76,6 +76,7 @@ hello
 same namespace symbol.
 
 * If you want to see the thread id which the functions has been called, you can add an `:show-tid` flag when calling `trace`.
+
 ```clojure
 user=>(trace 'user :show-tid)
 user=>(foo 5)
