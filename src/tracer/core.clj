@@ -52,11 +52,13 @@
   supported flags:
     :show-tid - print the thread id when functions has been called."
   [ns-name-sym & flags]
-  (let [vars (ns-interns ns-name-sym)]
-    (doseq [[var-name  var-obj] vars]
-      (when (callable? var-obj)
-        (println "Add" var-name "to trace list.")
-        (wrap-fn var-obj ((set flags) :show-tid))))))
+  (if ('#{tracer.core} ns-name-sym)
+    (println "ns:" ns-name-sym "is forbidden to be traced!")
+    (let [vars (ns-interns ns-name-sym)]
+      (doseq [[var-name  var-obj] vars]
+        (when (callable? var-obj)
+          (println "Add" var-name "to trace list.")
+          (wrap-fn var-obj ((set flags) :show-tid)))))))
 
 (defn untrace [ns-name-sym]
   (doseq [[_ var-obj] (ns-interns ns-name-sym)]
