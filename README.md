@@ -56,6 +56,13 @@ user=> (read-string "\"hello\"")
 "hello"
 ```
 
+* Finally, you can undo all the tracing by calling `untrace` with the
+same namespace symbol.
+
+## Contributors
+* James Xu [xumingming](https://github.com/xumingming)
+* Baishampayan Ghose [ghoseb](https://github.com/ghoseb)
+
 ## License
 
 Copyright (C) 2013 xumingming
