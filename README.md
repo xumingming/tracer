@@ -62,6 +62,7 @@ same namespace symbol.
 ## Contributors
 * James Xu [xumingming](https://github.com/xumingming)
 * Baishampayan Ghose [ghoseb](https://github.com/ghoseb)
+* Ruiyun Wen [ruiyun](https://github.com/Ruiyun)
 
 ## License
 
