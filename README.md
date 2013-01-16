@@ -2,7 +2,8 @@
 
 trace clojure call stack.
 
-When you read some clojure source code, you may find some function/logic very complex, it is not so simple to understand the whole logic. I found the same issue, so I developed this simple tool to facilitate reading of clojure source code.
+When I readd some open source clojure source code, I find that some function/logic are so complex that it is not so simple to understand the whole logic, I think it will help me a lot if I can see the real function call stack with the provided paremeters, so I developed this simple tool to facilitate reading of clojure source code.
+
 ## Usage
 
 * Include `tracer` in your `project.clj`
