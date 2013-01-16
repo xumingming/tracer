@@ -26,6 +26,7 @@ lein repl
 * Tell `tracer` which namespace you want to trace:
 
 ```clojure
+;; CHANGE 'blind.reader TO YOUR OWN namespace
 (trace 'blind.reader)
 ```
 
