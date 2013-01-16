@@ -57,7 +57,7 @@
     (let [vars (ns-interns ns-name-sym)]
       (doseq [[var-name  var-obj] vars]
         (when (callable? var-obj)
-          (println "Add" var-name "to trace list.")
+          (println (format "Add %s/%s to trace list." (name ns-name-sym)  var-name))
           (wrap-fn var-obj ((set flags) :show-tid)))))))
 
 (defn untrace [ns-name-sym]
