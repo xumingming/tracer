@@ -25,7 +25,7 @@
                             (print-level)
                             ;; incr the level
                             (swap! level inc)
-                            (println "[TRACER]" display-fn-name#  args#)
+                            (println display-fn-name#  args#)
                             (let [ret# (apply original# args#)]
                               ;; decr the level
                               (swap! level dec)
