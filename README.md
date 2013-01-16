@@ -63,8 +63,8 @@ same namespace symbol.
 ```clojure
 user=>(trace 'user :show-tid)
 user=>(foo 5)
-18:  |--user$foo (5)
-18:     |--user$bar (5)
+18:  |-- (user/foo 5)
+18:     |-- (user/bar 5)
 ```
 
 ## Contributors
