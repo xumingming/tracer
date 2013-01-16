@@ -6,7 +6,7 @@
 (defn- print-level [level]
   (doseq [i (range level)]
     (print "  "))
-  (print "|--"))
+  (print "|-- "))
 
 (defn- parse-ns-name [f]
   (let [full-class-name (-> f type .getName)
@@ -26,7 +26,8 @@
      (alter-var-root ~f (fn [original#]
                         (fn [& args#]
                           (let [[ns-name# fn-name#] (parse-ns-name  original#)
-                                display-fn-name# (str ns-name# "$" fn-name#)
+                                display-fn-name# (str ns-name# "/" fn-name#)
+                                display-msg# (pr-str (cons (symbol display-fn-name#) args#))
                                 tid# (.getId (Thread/currentThread))
                                 level# (or (@level-in-threads tid#)
                                            ((swap! level-in-threads assoc tid# 0) tid#))]
@@ -34,7 +35,7 @@
                             (print-level level#)
                             ;; incr the level
                             (swap! level-in-threads update-in [tid#] inc)
-                            (println display-fn-name#  args#)
+                            (println display-msg#)
                             (let [ret# (apply original# args#)]
                               ;; decr the level
                               (swap! level-in-threads update-in [tid#] dec)
