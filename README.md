@@ -59,6 +59,14 @@ user=> (read-string "\"hello\"")
 * Finally, you can undo all the tracing by calling `untrace` with the
 same namespace symbol.
 
+* If you want to see the thread id which the functions has been called, you can add an `:show-tid` flag when calling `trace`.
+```clojure
+user=>(trace 'user :show-tid)
+user=>(foo 5)
+18:  |-- (user/foo 5)
+18:     |-- (user/bar 5)
+```
+
 ## Contributors
 * James Xu [xumingming](https://github.com/xumingming)
 * Baishampayan Ghose [ghoseb](https://github.com/ghoseb)
