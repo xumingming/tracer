@@ -33,7 +33,7 @@
                             (print-level level#)
                             ;; incr the level
                             (swap! level-in-threads update-in [tid#] inc)
-                            (println display-fn-name#  args#)
+                            (println display-fn-name#  (pr-str args#))
                             (let [ret# (apply original# args#)]
                               ;; decr the level
                               (swap! level-in-threads update-in [tid#] dec)
