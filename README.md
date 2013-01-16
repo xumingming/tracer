@@ -15,7 +15,7 @@ When I read some open source clojure source code, I find that some function/logi
 * Go into your project home and start the repl:
 
 ```bash
-lein repl
+lein deps && lein repl
 ```
 
 * `use` the `tracer.core` namespace
