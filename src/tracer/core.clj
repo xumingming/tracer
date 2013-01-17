@@ -1,10 +1,14 @@
-(ns tracer.core
-  (require [clojure.string :refer [split join]]))
+(ns tracer.core)
 
-(def ^:private level-in-threads (atom {}))
+(defonce ^:private level-in-threads (atom {}))
+(defonce ^:private print-lock (Object.))
 
-(defn- print-level [level]
-  (print (str (join "" (take level (repeat "| "))) "|-+ ")))
+(defn- print-trace [call-msg level tid]
+  (locking print-lock
+    (let [prefix (str (and tid (format "%d: " tid))
+                      (apply str (take level (repeat "| ")))
+                      "|-+ ")]
+      (println (str prefix call-msg)))))
 
 (defn- parse-ns-name [f]
   (let [full-class-name (-> f type .getName)
@@ -29,11 +33,9 @@
                                 tid# (.getId (Thread/currentThread))
                                 level# (or (@level-in-threads tid#)
                                            ((swap! level-in-threads assoc tid# 0) tid#))]
-                            (when ~show-tid? (print (format "%d:  " tid#)))
-                            (print-level level#)
+                            (print-trace display-msg# level# (and ~show-tid? tid#))
                             ;; incr the level
                             (swap! level-in-threads update-in [tid#] inc)
-                            (println display-msg#)
                             (let [ret# (apply original# args#)]
                               ;; decr the level
                               (swap! level-in-threads update-in [tid#] dec)
