@@ -44,7 +44,7 @@
                             ;; incr the level
                             (swap! level-in-threads update-in [tid#] inc)
                             (let [ret# (apply original# args#)]
-                              (print-trace-end ret# level# (and ~show-tid? tid#))
+                              (print-trace-end (pr-str ret#) level# (and ~show-tid? tid#))
                               ;; decr the level
                               (swap! level-in-threads update-in [tid#] dec)
                               ret#)))))))
