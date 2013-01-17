@@ -4,9 +4,7 @@
 (def ^:private level-in-threads (atom {}))
 
 (defn- print-level [level]
-  (doseq [i (range level)]
-    (print "  "))
-  (print "|-+ "))
+  (print (str (take i (repeat "  ")) "|-+ ")))
 
 (defn- parse-ns-name [f]
   (let [full-class-name (-> f type .getName)
