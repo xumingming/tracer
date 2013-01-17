@@ -1,10 +1,10 @@
 (ns tracer.core
-  (require [clojure.string :refer [split]]))
+  (require [clojure.string :refer [split join]]))
 
 (def ^:private level-in-threads (atom {}))
 
 (defn- print-level [level]
-  (print (str (take i (repeat "  ")) "|-+ ")))
+  (print (str (join "" (take level (repeat "| "))) "|-+ ")))
 
 (defn- parse-ns-name [f]
   (let [full-class-name (-> f type .getName)
