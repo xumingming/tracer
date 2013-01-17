@@ -7,8 +7,15 @@
   (locking print-lock
     (let [prefix (str (and tid (format "%d: " tid))
                       (apply str (take level (repeat "| ")))
-                      "|-+ ")]
+                      "|- ")]
       (println (str prefix call-msg)))))
+
+(defn- print-trace-end [ret level tid]
+  (locking print-lock
+    (let [prefix (str (and tid (format "%d: " tid))
+                      (apply str (take level (repeat "| ")))
+                      " \\=> ")]
+      (println (str prefix ret)))))
 
 (defn- parse-ns-name [f]
   (let [full-class-name (-> f type .getName)
@@ -37,6 +44,7 @@
                             ;; incr the level
                             (swap! level-in-threads update-in [tid#] inc)
                             (let [ret# (apply original# args#)]
+                              (print-trace-end ret# level# (and ~show-tid? tid#))
                               ;; decr the level
                               (swap! level-in-threads update-in [tid#] dec)
                               ret#)))))))

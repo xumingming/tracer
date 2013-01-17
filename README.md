@@ -34,25 +34,42 @@ lein deps && lein repl
 * Invoke your function to see what happens( **you get a call tree & with the parameter value!** ):
 
 ```clojure
-user> (read-string "\"hello\"")
-|-+ (blind.reader/read-string "\"hello\"")
-| |-+ (blind.reader/string-push-back-reader "\"hello\"")
-| | |-+ (blind.reader/string-push-back-reader "\"hello\"" 1)
-| | | |-+ (blind.reader/string-reader "\"hello\"")
-| |-+ (blind.reader/read #<PushbackReader blind.reader.PushbackReader@306bba64> true nil false)
-| | |-+ (blind.reader/char \")
-| | |-+ (blind.reader/whitespace? \")
-| | |-+ (blind.reader/number-literal? #<PushbackReader blind.reader.PushbackReader@306bba64> \")
-| | | |-+ (blind.reader/numeric? \")
-| | |-+ (blind.reader/comment-prefix? \")
-| | |-+ (blind.reader/macros \")
-| | |-+ (blind.reader/read-string* #<PushbackReader blind.reader.PushbackReader@306bba64> \")
-| | | |-+ (blind.reader/char \h)
-| | | |-+ (blind.reader/char \e)
-| | | |-+ (blind.reader/char \l)
-| | | |-+ (blind.reader/char \l)
-| | | |-+ (blind.reader/char \o)
-| | | |-+ (blind.reader/char \")
+|- (blind.reader/read-string "\"hello\"")
+| |- (blind.reader/string-push-back-reader "\"hello\"")
+| | |- (blind.reader/string-push-back-reader "\"hello\"" 1)
+| | | |- (blind.reader/string-reader "\"hello\"")
+| | |  \=> blind.reader.StringReader@36a3bb2e
+| |  \=> blind.reader.PushbackReader@682f8c99
+|  \=> blind.reader.PushbackReader@682f8c99
+| |- (blind.reader/read #<PushbackReader blind.reader.PushbackReader@682f8c99> true nil false)
+| | |- (blind.reader/char \")
+| |  \=> "
+| | |- (blind.reader/whitespace? \")
+| |  \=> false
+| | |- (blind.reader/number-literal? #<PushbackReader blind.reader.PushbackReader@682f8c99> \")
+| | | |- (blind.reader/numeric? \")
+| | |  \=> false
+| |  \=> false
+| | |- (blind.reader/comment-prefix? \")
+| |  \=> false
+| | |- (blind.reader/macros \")
+| |  \=> tracer.core$trace$fn__931$fn__932@72dd23cf
+| | |- (blind.reader/read-string* #<PushbackReader blind.reader.PushbackReader@682f8c99> \")
+| | | |- (blind.reader/char \h)
+| | |  \=> h
+| | | |- (blind.reader/char \e)
+| | |  \=> e
+| | | |- (blind.reader/char \l)
+| | |  \=> l
+| | | |- (blind.reader/char \l)
+| | |  \=> l
+| | | |- (blind.reader/char \o)
+| | |  \=> o
+| | | |- (blind.reader/char \")
+| | |  \=> "
+| |  \=> hello
+|  \=> hello
+ \=> hello
 "hello"
 ```
 
