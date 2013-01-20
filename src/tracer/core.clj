@@ -75,7 +75,8 @@
      ;; alter var's root to wrapped function
      (alter-var-root ~f (constantly wrapped-fn#))))
 
-(defn unwrap-fn [v]
+(defn unwrap-fn
+  [v]
   (when (traced? @v)
     ;; alter the var back
     (alter-var-root v (constantly (get-orig @v)))
@@ -95,7 +96,9 @@
           (println (format "Add %s/%s to trace list." (name ns-name-sym)  var-name))
           (wrap-fn var-obj ((set flags) :show-tid)))))))
 
-(defn untrace [ns-name-sym]
+(defn untrace
+  "Tell tracer to un-trace the objects(functions, macros) in the specified namespace."
+  [ns-name-sym]
   (doseq [[var-name var-obj] (ns-interns ns-name-sym)]
     (when (callable? var-obj)
       (println (format "Remove %s/%s from trace list." (name ns-name-sym)  var-name))
