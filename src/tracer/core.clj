@@ -35,6 +35,7 @@
   (fn [& args]
     (let [[ns-name fn-name] (parse-ns-name f)
           display-fn-name (str ns-name "/" fn-name)
+          args (map #(if (@wrapped->orig %) (@wrapped->orig %) %) args)
           display-msg (pr-str (cons (symbol display-fn-name) args))
           tid (.getId (Thread/currentThread))
           level (or (@level-in-threads tid)
@@ -43,7 +44,10 @@
       ;; incr the level
       (swap! level-in-threads update-in [tid] inc)
       (try
-        (let [ret (apply f args)]
+        (let [ret (apply f args)
+              ret (if (@wrapped->orig ret)
+                    (@wrapped->orig ret)
+                    ret)]
           (print-trace-end (pr-str ret) level (and show-tid? tid))
           ;; decr the level
           (swap! level-in-threads update-in [tid] dec)
