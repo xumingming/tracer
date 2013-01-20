@@ -33,21 +33,27 @@
   `(do
      (alter-meta! ~f assoc ::orig (deref ~f))
      (alter-var-root ~f (fn [original#]
-                        (fn [& args#]
-                          (let [[ns-name# fn-name#] (parse-ns-name  original#)
-                                display-fn-name# (str ns-name# "/" fn-name#)
-                                display-msg# (pr-str (cons (symbol display-fn-name#) args#))
-                                tid# (.getId (Thread/currentThread))
-                                level# (or (@level-in-threads tid#)
-                                           ((swap! level-in-threads assoc tid# 0) tid#))]
-                            (print-trace display-msg# level# (and ~show-tid? tid#))
-                            ;; incr the level
-                            (swap! level-in-threads update-in [tid#] inc)
-                            (let [ret# (apply original# args#)]
-                              (print-trace-end (pr-str ret#) level# (and ~show-tid? tid#))
-                              ;; decr the level
-                              (swap! level-in-threads update-in [tid#] dec)
-                              ret#)))))))
+                          (fn [& args#]
+                            (let [[ns-name# fn-name#] (parse-ns-name  original#)
+                                  display-fn-name# (str ns-name# "/" fn-name#)
+                                  display-msg# (pr-str (cons (symbol display-fn-name#) args#))
+                                  tid# (.getId (Thread/currentThread))
+                                  level# (or (@level-in-threads tid#)
+                                             ((swap! level-in-threads assoc tid# 0) tid#))]
+                              (print-trace display-msg# level# (and ~show-tid? tid#))
+                              ;; incr the level
+                              (swap! level-in-threads update-in [tid#] inc)
+                              (try
+                                (let [ret# (apply original# args#)]
+                                  (print-trace-end (pr-str ret#) level# (and ~show-tid? tid#))
+                                  ;; decr the level
+                                  (swap! level-in-threads update-in [tid#] dec)
+                                  ret#)
+                                (catch Exception e#
+                                  ;; reset level to 0 if there is exception
+                                  (swap! level-in-threads update-in [tid#] (fn [x#] 0))
+                                  ;; rethrow the exception
+                                  (throw e#)))))))))
 
 (defn unwrap-fn [v]
   (when (::orig (meta v))
