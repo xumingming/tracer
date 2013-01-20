@@ -17,7 +17,7 @@
                       " \\=> ")]
       (println (str prefix ret)))))
 
-(defn- parse-ns-name [f]
+(defn parse-ns-name [f]
   (let [full-class-name (-> f type .getName)
         [ns-name fn-name] (vec (.split full-class-name "\\$"))
         fn-name (.replaceAll fn-name "_QMARK_" "?")
@@ -29,36 +29,42 @@
 (defn- callable? [var-obj]
   (not (nil? (:arglists (meta var-obj)))))
 
+(defn build-wrapped-fn [f show-tid?]
+  (fn [& args]
+    (let [[ns-name fn-name] (parse-ns-name f)
+          display-fn-name (str ns-name "/" fn-name)
+          display-msg (pr-str (cons (symbol display-fn-name) args))
+          tid (.getId (Thread/currentThread))
+          level (or (@level-in-threads tid)
+                     ((swap! level-in-threads assoc tid 0) tid))]
+      (print-trace display-msg level (and show-tid? tid))
+      ;; incr the level
+      (swap! level-in-threads update-in [tid] inc)
+      (try
+        (let [ret (apply f args)]
+          (print-trace-end (pr-str ret) level (and show-tid? tid))
+          ;; decr the level
+          (swap! level-in-threads update-in [tid] dec)
+          ret)
+        (catch Exception e
+          ;; reset level to 0 if there is exception
+          (swap! level-in-threads update-in [tid] (fn [_] 0))
+          ;; rethrow the exception
+          (throw e))))))
+
 (defmacro wrap-fn [f show-tid?]
-  `(do
+  `(let [wrapped-fn# (build-wrapped-fn (deref ~f) ~show-tid?)]
+     ;; write original functional into the var's metadata
      (alter-meta! ~f assoc ::orig (deref ~f))
-     (alter-var-root ~f (fn [original#]
-                          (fn [& args#]
-                            (let [[ns-name# fn-name#] (parse-ns-name  original#)
-                                  display-fn-name# (str ns-name# "/" fn-name#)
-                                  display-msg# (pr-str (cons (symbol display-fn-name#) args#))
-                                  tid# (.getId (Thread/currentThread))
-                                  level# (or (@level-in-threads tid#)
-                                             ((swap! level-in-threads assoc tid# 0) tid#))]
-                              (print-trace display-msg# level# (and ~show-tid? tid#))
-                              ;; incr the level
-                              (swap! level-in-threads update-in [tid#] inc)
-                              (try
-                                (let [ret# (apply original# args#)]
-                                  (print-trace-end (pr-str ret#) level# (and ~show-tid? tid#))
-                                  ;; decr the level
-                                  (swap! level-in-threads update-in [tid#] dec)
-                                  ret#)
-                                (catch Exception e#
-                                  ;; reset level to 0 if there is exception
-                                  (swap! level-in-threads update-in [tid#] (fn [x#] 0))
-                                  ;; rethrow the exception
-                                  (throw e#)))))))))
+     ;; alter var's root to wrapped function
+     (alter-var-root ~f (constantly wrapped-fn#))))
 
 (defn unwrap-fn [v]
   (when (::orig (meta v))
     (doto v
+      ;; alter the var back
       (alter-var-root (constantly ((meta v) ::orig)))
+      ;; dissoc the orig from meta
       (alter-meta! dissoc ::orig))))
 
 (defn trace
@@ -75,6 +81,7 @@
           (wrap-fn var-obj ((set flags) :show-tid)))))))
 
 (defn untrace [ns-name-sym]
-  (doseq [[_ var-obj] (ns-interns ns-name-sym)]
+  (doseq [[var-name var-obj] (ns-interns ns-name-sym)]
     (when (callable? var-obj)
+      (println (format "Remove %s/%s from trace list." (name ns-name-sym)  var-name))
       (unwrap-fn var-obj))))
