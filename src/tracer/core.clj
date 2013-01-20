@@ -92,7 +92,7 @@
     (println "ns:" ns-name-sym "is forbidden to be traced!")
     (let [vars (ns-interns ns-name-sym)]
       (doseq [[var-name  var-obj] vars]
-        (when (callable? var-obj)
+        (when (and (callable? var-obj) (not (traced? (deref var-obj))))
           (println (format "Add %s/%s to trace list." (name ns-name-sym)  var-name))
           (wrap-fn var-obj ((set flags) :show-tid)))))))
 
@@ -100,6 +100,6 @@
   "Tell tracer to un-trace the objects(functions, macros) in the specified namespace."
   [ns-name-sym]
   (doseq [[var-name var-obj] (ns-interns ns-name-sym)]
-    (when (callable? var-obj)
+    (when (traced? (deref var-obj))
       (println (format "Remove %s/%s from trace list." (name ns-name-sym)  var-name))
       (unwrap-fn var-obj))))
