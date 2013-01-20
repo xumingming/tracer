@@ -3,6 +3,8 @@
 (defonce ^:private level-in-threads (atom {}))
 (defonce ^:private print-lock (Object.))
 
+(defonce wrapped->orig (atom {}))
+
 (defn- print-trace [call-msg level tid]
   (locking print-lock
     (let [prefix (str (and tid (format "%d: " tid))
@@ -54,18 +56,17 @@
 
 (defmacro wrap-fn [f show-tid?]
   `(let [wrapped-fn# (build-wrapped-fn (deref ~f) ~show-tid?)]
-     ;; write original functional into the var's metadata
-     (alter-meta! ~f assoc ::orig (deref ~f))
+     ;; save the wrapped to orig mapping
+     (swap! wrapped->orig assoc wrapped-fn# (deref ~f))
      ;; alter var's root to wrapped function
      (alter-var-root ~f (constantly wrapped-fn#))))
 
 (defn unwrap-fn [v]
-  (when (::orig (meta v))
-    (doto v
-      ;; alter the var back
-      (alter-var-root (constantly ((meta v) ::orig)))
-      ;; dissoc the orig from meta
-      (alter-meta! dissoc ::orig))))
+  (when (@wrapped->orig @v)
+    ;; alter the var back
+    (alter-var-root v (constantly (@wrapped->orig @v)))
+    ;; remove from the cache
+    (swap! wrapped->orig dissoc @v)))
 
 (defn trace
   "Tell tracer which namespace you want to trace.
