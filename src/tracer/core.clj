@@ -5,6 +5,18 @@
 
 (defonce wrapped->orig (atom {}))
 
+(defn traced?
+  "Returns whether the specified object is traced."
+  [obj]
+  (if (@wrapped->orig obj) true false))
+
+(defn get-orig
+  "Returns the original object if the specified obj is traced, otherwise returns itself."
+  [obj]
+  (if (traced? obj)
+    (@wrapped->orig obj)
+    obj))
+
 (defn- print-trace [call-msg level tid]
   (locking print-lock
     (let [prefix (str (and tid (format "%d: " tid))
@@ -35,7 +47,7 @@
   (fn [& args]
     (let [[ns-name fn-name] (parse-ns-name f)
           display-fn-name (str ns-name "/" fn-name)
-          args (map #(if (@wrapped->orig %) (@wrapped->orig %) %) args)
+          args (map get-orig args)
           display-msg (pr-str (cons (symbol display-fn-name) args))
           tid (.getId (Thread/currentThread))
           level (or (@level-in-threads tid)
@@ -45,9 +57,7 @@
       (swap! level-in-threads update-in [tid] inc)
       (try
         (let [ret (apply f args)
-              ret (if (@wrapped->orig ret)
-                    (@wrapped->orig ret)
-                    ret)]
+              ret (get-orig ret)]
           (print-trace-end (pr-str ret) level (and show-tid? tid))
           ;; decr the level
           (swap! level-in-threads update-in [tid] dec)
@@ -66,9 +76,9 @@
      (alter-var-root ~f (constantly wrapped-fn#))))
 
 (defn unwrap-fn [v]
-  (when (@wrapped->orig @v)
+  (when (traced? @v)
     ;; alter the var back
-    (alter-var-root v (constantly (@wrapped->orig @v)))
+    (alter-var-root v (constantly (get-orig @v)))
     ;; remove from the cache
     (swap! wrapped->orig dissoc @v)))
 
