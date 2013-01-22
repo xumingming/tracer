@@ -1,5 +1,24 @@
 (ns tracer.core)
 
+(defn color-println
+  "print with color"
+  [level str]
+  (let [colors [ ;;"\u001B[30m" ;; black
+                 "\u001B[31m" ;; red
+                 "\u001B[32m" ;; green
+                 "\u001B[33m" ;; yellow
+                 "\u001B[34m" ;; blue
+                 "\u001B[35m" ;; purple
+                 "\u001B[36m" ;; cyan
+                 ;;"\u001B[37m" ;; white
+                 ]
+        cmd-close "\u001B[m"
+        color-cnt (count colors)
+        color-ind (mod level color-cnt)
+        color (get colors color-ind)
+        ]
+    (println color  str cmd-close)))
+
 (defonce ^:private level-in-threads (atom {}))
 (defonce ^:private print-lock (Object.))
 
@@ -22,14 +41,14 @@
     (let [prefix (str (and tid (format "%d: " tid))
                       (apply str (take level (repeat "| ")))
                       "|- ")]
-      (println (str prefix call-msg)))))
+      (color-println level (str prefix call-msg))))) ;; here
 
 (defn- print-trace-end [ret level tid]
   (locking print-lock
     (let [prefix (str (and tid (format "%d: " tid))
                       (apply str (take level (repeat "| ")))
                       " \\=> ")]
-      (println (str prefix ret)))))
+      (color-println level (str prefix ret)))))
 
 (defn parse-ns-name [f]
   (let [full-class-name (-> f type .getName)
