@@ -1,6 +1,6 @@
 (ns tracer.core)
 
-(defonce ^:private color-print-on (atom true))
+(defonce ^:private color-print-on (atom false))
 
 (defn set-color-print-on!
   "Enable color print"
