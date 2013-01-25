@@ -21,14 +21,13 @@
     (println str)))
 
 (defonce ^:private level-in-threads (atom {}))
-(defonce ^:private print-lock (Object.))
 
 (defonce wrapped->orig (atom {}))
 
 (defn traced?
   "Returns whether the specified object is traced."
   [obj]
-  (if (@wrapped->orig obj) true false))
+  (boolean (@wrapped->orig obj)))
 
 (defn get-orig
   "Returns the original object if the specified obj is traced, otherwise returns itself."
@@ -38,40 +37,41 @@
     obj))
 
 (defn- print-trace [call-msg level tid with-color?]
-  (locking print-lock
+  (locking ::lock
     (let [prefix (str (and tid (format "%d: " tid))
-                      (apply str (take level (repeat "| ")))
+                      (apply str (repeat level "| "))
                       "|- ")]
-      (color-println level  with-color? (str prefix call-msg)))))
+      (color-println level with-color? (str prefix call-msg)))))
 
 (defn- print-trace-end [ret level tid with-color?]
-  (locking print-lock
+  (locking ::lock
     (let [prefix (str (and tid (format "%d: " tid))
-                      (apply str (take level (repeat "| ")))
+                      (apply str (repeat level "| "))
                       " \\=> ")]
-      (color-println level  with-color? (str prefix ret)))))
+      (color-println level with-color? (str prefix ret)))))
 
 (defn parse-ns-name [f]
-  (let [full-class-name (-> f type .getName)
+  (let [full-class-name   (-> f type .getName)
         [ns-name fn-name] (vec (.split full-class-name "\\$"))
-        fn-name (.replaceAll fn-name "_QMARK_" "?")
-        fn-name (.replaceAll fn-name "_BANG_" "!")
-        fn-name (.replaceAll fn-name "_STAR_" "*")
-        fn-name (.replaceAll fn-name "_" "-")]
+        fn-name           (-> fn-name
+                              (.replaceAll "_QMARK_" "?")
+                              (.replaceAll "_BANG_" "!")
+                              (.replaceAll "_STAR_" "*")
+                              (.replaceAll "_"      "-"))]
     [ns-name fn-name]))
 
 (defn- callable? [var-obj]
-  (not (nil? (:arglists (meta var-obj)))))
+  (boolean (:arglists (meta var-obj))))
 
 (defn build-wrapped-fn [f show-tid? with-color?]
   (fn [& args]
     (let [[ns-name fn-name] (parse-ns-name f)
-          display-fn-name (str ns-name "/" fn-name)
-          args (map get-orig args)
-          display-msg (pr-str (cons (symbol display-fn-name) args))
-          tid (.getId (Thread/currentThread))
-          level (or (@level-in-threads tid)
-                     ((swap! level-in-threads assoc tid 0) tid))]
+          display-fn-name   (str ns-name "/" fn-name)
+          args              (map get-orig args)
+          display-msg       (pr-str (cons (symbol display-fn-name) args))
+          tid               (.getId (Thread/currentThread))
+          level             (or (@level-in-threads tid)
+                                ((swap! level-in-threads assoc tid 0) tid))]
       (print-trace display-msg level (and show-tid? tid) with-color?)
       ;; incr the level
       (swap! level-in-threads update-in [tid] inc)
@@ -84,7 +84,7 @@
           ret)
         (catch Exception e
           ;; reset level to 0 if there is exception
-          (swap! level-in-threads update-in [tid] (fn [_] 0))
+          (swap! level-in-threads assoc-in [tid] 0)
           ;; rethrow the exception
           (throw e))))))
 
@@ -113,9 +113,9 @@
     (let [vars (ns-interns ns-name-sym)]
       (doseq [[var-name  var-obj] vars]
         (when (and (callable? var-obj) (not (traced? (deref var-obj))))
-          (println (format "Add %s/%s to trace list." (name ns-name-sym)  var-name))
-          (let [flags (set flags)
-                show-tid? (flags :show-tid)
+          (println (format "Add %s/%s to trace list." (name ns-name-sym) var-name))
+          (let [flags       (set flags)
+                show-tid?   (flags :show-tid)
                 with-color? (flags :with-color)]
             (wrap-fn var-obj show-tid? with-color?)))))))
 
@@ -124,5 +124,5 @@
   [ns-name-sym]
   (doseq [[var-name var-obj] (ns-interns ns-name-sym)]
     (when (traced? (deref var-obj))
-      (println (format "Remove %s/%s from trace list." (name ns-name-sym)  var-name))
+      (println (format "Remove %s/%s from trace list." (name ns-name-sym) var-name))
       (unwrap-fn var-obj))))
