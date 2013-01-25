@@ -89,7 +89,7 @@ user=>(foo 5)
 * James Xu [xumingming](https://github.com/xumingming)
 * Baishampayan Ghose [ghoseb](https://github.com/ghoseb)
 * Ruiyun Wen [ruiyun](https://github.com/Ruiyun)
-* Xaifei Qiu [qiuxiafei](https://github.com/qiuxiafei)
+* Xiafei Qiu [qiuxiafei](https://github.com/qiuxiafei)
 
 ## License
 
