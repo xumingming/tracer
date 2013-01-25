@@ -1,23 +1,13 @@
-(ns tracer.core)
+(ns tracer.core
+  (:require [colorize.ansi :refer [colorize ansi-colors]]))
 
 (defn color-println
   "print with color"
   [level with-color? str]
   (if with-color?
-    (let [colors [ ;;"\u001B[30m" ;; black
-                  "\u001B[31m" ;; red
-                  "\u001B[32m" ;; green
-                  "\u001B[33m" ;; yellow
-                  "\u001B[34m" ;; blue
-                  "\u001B[35m" ;; purple
-                  "\u001B[36m" ;; cyan
-                  ;;"\u001B[37m" ;; white
-                  ]
-          cmd-close "\u001B[m"
-          color-cnt (count colors)
-          color-ind (mod level color-cnt)
-          color (get colors color-ind)]
-      (println color  str cmd-close))
+    (let [colors (keys (dissoc ansi-colors :white :black :default))
+          color  (nth colors (mod level (count colors)))]
+      (println (colorize str {:fg color})))
     (println str)))
 
 (defonce ^:private level-in-threads (atom {}))
@@ -108,7 +98,7 @@
   supported flags:
     :show-tid - print the thread id when functions has been called."
   [ns-name-sym & flags]
-  (if ('#{tracer.core} ns-name-sym)
+  (if ('#{tracer.core colorize.ansi} ns-name-sym)
     (println "ns:" ns-name-sym "is forbidden to be traced!")
     (let [vars (ns-interns ns-name-sym)]
       (doseq [[var-name  var-obj] vars]
