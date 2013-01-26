@@ -90,6 +90,7 @@ user=>(foo 5)
 * Baishampayan Ghose [ghoseb](https://github.com/ghoseb)
 * Ruiyun Wen [ruiyun](https://github.com/Ruiyun)
 * Xiafei Qiu [qiuxiafei](https://github.com/qiuxiafei)
+* Nicola Mometto [Bronsa](https://github.com/Bronsa)
 
 ## License
 
