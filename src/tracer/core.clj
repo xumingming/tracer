@@ -67,8 +67,8 @@
       (swap! level-in-threads update-in [tid] inc)
       (try
         (let [ret (apply f args)
-              ret (get-orig ret)]
-          (print-trace-end (pr-str ret) level (and show-tid? tid) with-color?)
+              display-ret (get-orig ret)]
+          (print-trace-end (pr-str display-ret) level (and show-tid? tid) with-color?)
           ;; decr the level
           (swap! level-in-threads update-in [tid] dec)
           ret)
