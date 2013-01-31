@@ -14,7 +14,7 @@ When I read some open source clojure source code, I find that some function/logi
         :repl-options {:init (use 'tracer.core)}}}
 ```
 
-This will make `tracer` available automatically when repl is loaded
+This will make `tracer` automatically available when repl is loaded
 The only two functions you will be interested in is `trace` and `untrace`.
 
 * Tell `tracer` which namespace you want to trace:
