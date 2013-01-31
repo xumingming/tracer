@@ -6,23 +6,16 @@ When I read some open source clojure source code, I find that some function/logi
 
 ## Usage
 
-* Include `tracer` in your `project.clj`
+* Add the following into your `~/.lein/profiles.clj`:
 
 ```clojure
-[tracer "1.0.0-SNAPSHOT"]
+{:user {
+        :dependencies [[tracer "1.0.0-SNAPSHOT"]]
+        :repl-options {:init (use 'tracer.core)}}}
 ```
 
-* Go into your project home and start the repl:
-
-```bash
-lein deps && lein repl
-```
-
-* `use` the `tracer.core` namespace
-
-```clojure
-(use 'tracer.core)
-```
+This will make `tracer` available automatically when repl is loaded
+The only two functions you will be interested in is `trace` and `untrace`.
 
 * Tell `tracer` which namespace you want to trace:
 
