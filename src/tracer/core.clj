@@ -53,6 +53,9 @@
 (defn- callable? [var-obj]
   (boolean (:arglists (meta var-obj))))
 
+(defn- remove-private-meta [var-obj]
+  )
+
 (defn build-wrapped-fn [f show-tid? with-color?]
   (fn [& args]
     (let [[ns-name fn-name] (parse-ns-name f)
@@ -83,7 +86,13 @@
      ;; save the wrapped to orig mapping
      (swap! wrapped->orig assoc wrapped-fn# (deref ~f))
      ;; alter var's root to wrapped function
-     (alter-var-root ~f (constantly wrapped-fn#))))
+     (alter-var-root ~f (constantly wrapped-fn#))
+     ;; remove the :private meta if it exists
+     (alter-meta! ~f (fn [curr-meta#]
+                       (-> curr-meta#
+                           (assoc :tracer-private (boolean (:private curr-meta#)))
+                           (dissoc :private))))
+     ))
 
 (defn unwrap-fn
   [v]
@@ -91,7 +100,12 @@
     ;; alter the var back
     (alter-var-root v (constantly (get-orig @v)))
     ;; remove from the cache
-    (swap! wrapped->orig dissoc @v)))
+    (swap! wrapped->orig dissoc @v)
+    ;; setback the :private meta
+    (alter-meta! v (fn [curr-meta]
+                      (-> curr-meta
+                          (assoc :private (boolean (:tracer-private curr-meta)))
+                          (dissoc :tracer-private))))))
 
 (defn trace
   "Tell tracer which namespace you want to trace.
@@ -107,7 +121,10 @@
           (let [flags       (set flags)
                 show-tid?   (flags :show-tid)
                 with-color? (flags :with-color)]
-            (wrap-fn var-obj show-tid? with-color?)))))))
+            (wrap-fn var-obj show-tid? with-color?))))
+      ;; reload the traced namespace -- so that some private function
+      ;; will be accessible in the REPL
+      (use ns-name-sym))))
 
 (defn untrace
   "Tell tracer to un-trace the objects(functions, macros) in the specified namespace."

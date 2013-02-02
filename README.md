@@ -78,6 +78,10 @@ user=>(foo 5)
 18: | |-+ (user/bar 5)
 ```
 
+## Features
+* You can get a colorized call stack tree if you pass `:with-color` to `trace`.
+* Make private function public, so you can call it easily in REPL.
+
 ## Contributors
 * James Xu [xumingming](https://github.com/xumingming)
 * Baishampayan Ghose [ghoseb](https://github.com/ghoseb)
