@@ -122,7 +122,7 @@
                 show-tid?   (flags :show-tid)
                 with-color? (flags :with-color)]
             (wrap-fn var-obj show-tid? with-color?))))
-      ;; reload the traced namespace -- so that some private function
+      ;; re-use the traced namespace -- so that some private function
       ;; will be accessible in the REPL
       (use ns-name-sym))))
 
@@ -132,4 +132,7 @@
   (doseq [[var-name var-obj] (ns-interns ns-name-sym)]
     (when (traced? (deref var-obj))
       (println (format "Remove %s/%s from trace list." (name ns-name-sym) var-name))
-      (unwrap-fn var-obj))))
+      (unwrap-fn var-obj)))
+  ;; re-use the traced namespace -- so that some private function
+  ;; will be accessible in the REPL
+  (use ns-name-sym))
